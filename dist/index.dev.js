@@ -4,6 +4,16 @@ var express = require("express");
 
 var app = express();
 app.use(express.json());
+
+var requestLogger = function requestLogger(req, res, next) {
+  console.log("Method:", req.method);
+  console.log("Path", req.path);
+  console.log("Body", req.body);
+  console.log("---");
+  next();
+};
+
+app.use(requestLogger);
 var persons = [{
   name: "George",
   id: 1
