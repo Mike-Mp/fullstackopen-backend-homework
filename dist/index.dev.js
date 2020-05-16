@@ -3,17 +3,14 @@
 var express = require("express");
 
 var app = express();
+
+var morgan = require("morgan");
+
 app.use(express.json());
-
-var requestLogger = function requestLogger(req, res, next) {
-  console.log("Method:", req.method);
-  console.log("Path", req.path);
-  console.log("Body", req.body);
-  console.log("---");
-  next();
-};
-
-app.use(requestLogger);
+morgan.token("type", function (req, res) {
+  return JSON.stringify(res.body);
+});
+app.use(morgan("type"));
 var persons = [{
   name: "George",
   id: 1
@@ -88,6 +85,14 @@ app["delete"]("/api/persons/:id", function (req, res) {
   });
   res.status(204).end();
 });
+
+var unknownEndpoint = function unknownEndpoint(req, res) {
+  res.status(404).send({
+    error: "unknown endpoint"
+  });
+};
+
+app.use(unknownEndpoint);
 var PORT = 3001;
 app.listen(PORT, function () {
   console.log("App is listening on port ".concat(PORT));

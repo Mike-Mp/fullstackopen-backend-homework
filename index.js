@@ -1,17 +1,14 @@
 const express = require("express");
 const app = express();
+const morgan = require("morgan");
 
 app.use(express.json());
 
-const requestLogger = (req, res, next) => {
-  console.log("Method:", req.method);
-  console.log("Path", req.path);
-  console.log("Body", req.body);
-  console.log("---");
-  next();
-};
+morgan.token("type", function (req, res) {
+  return JSON.stringify(res.body);
+});
 
-app.use(requestLogger);
+app.use(morgan("type"));
 
 let persons = [
   {
@@ -90,6 +87,12 @@ app.delete("/api/persons/:id", (req, res) => {
   persons = persons.filter((p) => p !== person);
   res.status(204).end();
 });
+
+const unknownEndpoint = (req, res) => {
+  res.status(404).send({ error: "unknown endpoint" });
+};
+
+app.use(unknownEndpoint);
 
 const PORT = 3001;
 app.listen(PORT, () => {
