@@ -4,16 +4,20 @@ var express = require("express");
 
 var app = express();
 
-var morgan = require("morgan");
-
 var cors = require("cors");
 
 app.use(cors());
 app.use(express.json());
-morgan.token("type", function (req, res) {
-  return JSON.stringify(res.body);
-});
-app.use(morgan("type"));
+
+if (process.env.NODE_ENV === "development") {
+  var morgan = require("morgan");
+
+  morgan.token("type", function (req, res) {
+    return JSON.stringify(res.body);
+  });
+  app.use(morgan("type"));
+}
+
 var persons = [{
   name: "George",
   id: 1

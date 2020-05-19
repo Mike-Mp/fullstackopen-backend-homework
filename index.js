@@ -1,17 +1,19 @@
 const express = require("express");
 const app = express();
-const morgan = require("morgan");
 const cors = require("cors");
 
 app.use(cors());
 
 app.use(express.json());
 
-morgan.token("type", function (req, res) {
-  return JSON.stringify(res.body);
-});
+if (process.env.NODE_ENV === "development") {
+  const morgan = require("morgan");
+  morgan.token("type", function (req, res) {
+    return JSON.stringify(res.body);
+  });
 
-app.use(morgan("type"));
+  app.use(morgan("type"));
+}
 
 let persons = [
   {
