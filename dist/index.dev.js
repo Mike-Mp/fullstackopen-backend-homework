@@ -6,6 +6,9 @@ var app = express();
 
 var morgan = require("morgan");
 
+var cors = require("cors");
+
+app.use(cors());
 app.use(express.json());
 morgan.token("type", function (req, res) {
   return JSON.stringify(res.body);
@@ -93,7 +96,7 @@ var unknownEndpoint = function unknownEndpoint(req, res) {
 };
 
 app.use(unknownEndpoint);
-var PORT = 3001;
+var PORT = process.env.PORT || 3001;
 app.listen(PORT, function () {
   console.log("App is listening on port ".concat(PORT));
 });
