@@ -1,6 +1,14 @@
 const express = require("express");
 const app = express();
 const cors = require("cors");
+const mongoose = require("mongoose");
+require("dotenv").config();
+
+const url = `mongodb+srv://fullstack:${process.env.PASSWORD}@cluster0-cndmu.mongodb.net/person-app?retryWrites=true&w=majority`;
+
+mongoose.connect(url, { useNewUrlParse: true, useUnifiedTopology: true });
+
+const 
 
 app.use(cors());
 

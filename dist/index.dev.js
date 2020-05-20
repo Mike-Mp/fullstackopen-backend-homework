@@ -6,6 +6,15 @@ var app = express();
 
 var cors = require("cors");
 
+var mongoose = require("mongoose");
+
+require("dotenv").config();
+
+var url = "mongodb+srv://fullstack:".concat(process.env.PASSWORD, "@cluster0-cndmu.mongodb.net/test?retryWrites=true&w=majority");
+mongoose.connect(url, {
+  useNewUrlParse: true,
+  useUnifiedTopology: true
+});
 app.use(cors());
 app.use(express["static"]("build"));
 app.use(express.json());
