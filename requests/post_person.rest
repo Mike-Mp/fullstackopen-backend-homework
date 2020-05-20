@@ -1,6 +1,14 @@
-POST https://calm-ravine-30658.herokuapp.com/api/persons/
+# POST https://calm-ravine-30658.herokuapp.com/api/persons/
+# Content-Type: application/json
+
+# {
+#   "name": "George the second" 
+# }
+
+POST http://localhost:3001/api/persons
 Content-Type: application/json
 
 {
-  "name": "George the second" 
+  "name": "Nick Rutherfort",
+  "number": "20202001231"
 }

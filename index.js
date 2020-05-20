@@ -1,14 +1,8 @@
+require("dotenv").config();
 const express = require("express");
 const app = express();
 const cors = require("cors");
-const mongoose = require("mongoose");
-require("dotenv").config();
-
-const url = `mongodb+srv://fullstack:${process.env.PASSWORD}@cluster0-cndmu.mongodb.net/person-app?retryWrites=true&w=majority`;
-
-mongoose.connect(url, { useNewUrlParse: true, useUnifiedTopology: true });
-
-const 
+const Person = require("./models/person");
 
 app.use(cors());
 
@@ -25,39 +19,17 @@ if (process.env.NODE_ENV === "development") {
   app.use(morgan("type"));
 }
 
-let persons = [
-  {
-    name: "George",
-    id: 1,
-  },
-  {
-    name: "Smith",
-    id: 2,
-  },
-  {
-    name: "Mike",
-    id: 3,
-  },
-  {
-    name: "Bill",
-    id: 4,
-  },
-];
-
 app.get("/", (req, res) => {
   res.send("Hello world");
 });
 
-app.get("/api/persons", (req, res) => {
-  res.json(persons);
+app.get("/api/persons", async (req, res) => {
+  const people = await Person.find({});
+  res.json(people);
 });
 
-app.get("/api/persons/:id", (req, res) => {
-  const id = Number(req.params.id);
-  const person = persons.find((p) => p.id === id);
-  if (!person) {
-    return res.status(404).end();
-  }
+app.get("/api/persons/:id", async (req, res) => {
+  const person = await Person.findById(req.params.id);
   res.json(person);
 });
 
@@ -70,27 +42,21 @@ app.get("/info", (req, res) => {
 });
 
 app.post("/api/persons", (req, res) => {
-  const id = Math.floor(Math.random() * 100);
   const body = req.body;
-  const personExist = persons.find((p) => p.name === body.name);
 
-  const newPerson = {
-    name: body.name,
-    id,
-  };
-
-  if (!body.name) {
-    return res.status(304).json({
-      error: "Name has to be included.",
-    });
-  } else if (personExist) {
-    return res.status(304).json({
-      error: "Name already exists",
-    });
+  if (body.name === undefined) {
+    return res.status(400).json({ error: "name is missing" });
   }
 
-  persons = persons.concat(newPerson);
-  res.json(newPerson);
+  const newPerson = new Person({
+    name: body.name,
+    number: body.number,
+    date: new Date(),
+  });
+
+  newPerson.save().then((savedPerson) => {
+    res.json(savedPerson);
+  });
 });
 
 app.delete("/api/persons/:id", (req, res) => {
