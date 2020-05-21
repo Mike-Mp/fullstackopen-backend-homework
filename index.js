@@ -28,16 +28,27 @@ app.get("/api/persons", async (req, res) => {
   res.json(people);
 });
 
-app.get("/api/persons/:id", async (req, res) => {
-  const person = await Person.findById(req.params.id);
-  res.json(person);
+app.get("/api/persons/:id", (req, res, next) => {
+  Person.findById(req.params.id)
+    .then((note) => {
+      if (note) {
+        res.json(note);
+      } else {
+        res.status(404).end();
+      }
+    })
+    .catch((error) => {
+      next(error);
+    });
 });
 
 app.get("/info", (req, res) => {
-  const personNum = persons.length;
-
-  res.send(
-    `Phonebook has info for ${personNum} people.\n ${new Date().toString()}`
+  Note.find({}).then((result) =>
+    res.send(
+      `Phonebook has info for ${
+        result.length
+      } people.\n ${new Date().toString()}`
+    )
   );
 });
 
@@ -59,21 +70,34 @@ app.post("/api/persons", (req, res) => {
   });
 });
 
-app.delete("/api/persons/:id", (req, res) => {
-  const id = Number(req.params.id);
-  const person = persons.find((p) => p.id === id);
-  if (!person) {
-    res.status(404).end();
-  }
-  persons = persons.filter((p) => p !== person);
-  res.status(204).end();
+app.put("/api/persons/:id", (req, res, next) => {
+  const body = req.body;
+
+  const person = {
+    name: body.name,
+    number: body.number,
+  };
+
+  Person.findByIdAndUpdate(req.params.id, person, {
+    new: true,
+  }).then((modifiedPerson) => res.json(modifiedPerson));
 });
 
-const unknownEndpoint = (req, res) => {
-  res.status(404).send({ error: "unknown endpoint" });
+app.delete("/api/persons/:id", (req, res, next) => {
+  Person.findByIdAndDelete(req.params.id)
+    .then((result) => res.status(204).end())
+    .catch((error) => next(error));
+});
+
+const errorHandler = (error, req, res, next) => {
+  if (error.name === "CastError") {
+    return res.status(400).send({ error: "malformatted id" });
+  } else {
+    next(error);
+  }
 };
 
-app.use(unknownEndpoint);
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
